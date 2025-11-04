@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{COMPANY_NAME}} - AI Receptionist Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #718096;
+            margin-bottom: 35px;
+            font-size: 18px;
+            font-weight: 400;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 18px 50px;
+            border: none;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .demo-button:active {
+            transform: translateY(-1px);
+        }
+        
+        .demo-button.calling {
+            background: #e53e3e;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .info {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 35px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .info h3 {
+            color: #2d3748;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+        
+        .info p {
+            color: #4a5568;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+        
+        .status {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #718096;
+            font-style: italic;
+        }
+        
+        .powered-by {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #a0aec0;
+            font-size: 13px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 35px 25px;
+            }
+            
+            h1 {
+                font-size: 26px;
+            }
+            
+            .subtitle {
+                font-size: 16px;
+            }
+            
+            .demo-button {
+                padding: 16px 40px;
+                font-size: 18px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/vapi.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🤖</div>
+        <h1>Welcome to {{COMPANY_NAME}}</h1>
+        <p class="subtitle">Experience Your Custom AI Receptionist</p>
+        
+        <button class="demo-button" id="callButton" onclick="toggleCall()">
+            <span id="buttonIcon">🎤</span>
+            <span id="buttonText">Start Demo Call</span>
+        </button>
+        
+        <div class="status" id="status"></div>
+        
+        <div class="info">
+            <h3>📋 About This Demo</h3>
+            <p>This AI receptionist has been customized specifically for <strong>{{COMPANY_NAME}}</strong>. 
+            It understands your business, can help schedule appointments, answer questions, 
+            and assist your customers 24/7.</p>
+            <br>
+            <p><strong>Try saying:</strong> "I'd like to schedule an appointment" or "Tell me about your services"</p>
+        </div>
+        
+        <div class="powered-by">
+            Powered by Phantom Teens AI Technology
+        </div>
+    </div>
+
+    <script>
+        const vapi = new Vapi("{{VAPI_PUBLIC_KEY}}");
+        let isCallActive = false;
+        
+        const button = document.getElementById('callButton');
+        const buttonIcon = document.getElementById('buttonIcon');
+        const buttonText = document.getElementById('buttonText');
+        const status = document.getElementById('status');
+        
+        function toggleCall() {
+            if (isCallActive) {
+                vapi.stop();
+            } else {
+                vapi.start("{{ASSISTANT_ID}}");
+            }
+        }
+        
+        vapi.on("call-start", () => {
+            isCallActive = true;
+            button.classList.add('calling');
+            buttonIcon.textContent = '📞';
+            buttonText.textContent = 'End Call';
+            status.textContent = '🟢 Call in progress...';
+            console.log("Call started");
+        });
+        
+        vapi.on("call-end", () => {
+            isCallActive = false;
+            button.classList.remove('calling');
+            buttonIcon.textContent = '🎤';
+            buttonText.textContent = 'Start Demo Call';
+            status.textContent = 'Call ended. Click to try again!';
+            console.log("Call ended");
+            
+            setTimeout(() => {
+                status.textContent = '';
+            }, 3000);
+        });
+        
+        vapi.on("error", (error) => {
+            console.error("Error:", error);
+            status.textContent = '❌ Error occurred. Please refresh and try again.';
+            isCallActive = false;
+            button.classList.remove('calling');
+            buttonIcon.textContent = '🎤';
+            buttonText.textContent = 'Start Demo Call';
+        });
+        
+        vapi.on("speech-start", () => {
+            console.log("Assistant started speaking");
+        });
+        
+        vapi.on("speech-end", () => {
+            console.log("Assistant finished speaking");
+        });
+    </script>
+</body>
+</html>
